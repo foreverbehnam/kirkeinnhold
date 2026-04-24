@@ -1,4 +1,8 @@
 {
+  "name": "kirkeinnhold",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -8,9 +12,7 @@
     "@vitejs/plugin-react": "latest",
     "vite": "latest",
     "react": "latest",
-    "react-dom": "latest",
-    "tailwindcss": "latest",
-    "@tailwindcss/vite": "latest"
+    "react-dom": "latest"
   },
   "devDependencies": {}
 }
