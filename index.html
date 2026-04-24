@@ -3,11 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Tailwind (fixes styling) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <title>Kirkeinnhold</title>
     <meta name="description" content="Ferdige innlegg for kirker og organisasjoner. Send detaljer, få publiseringsklart innhold innen 24 timer." />
   </head>
-  <body>
+
+  <body class="bg-slate-900 text-white">
     <div id="root"></div>
+
+    <!-- Your React app -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
