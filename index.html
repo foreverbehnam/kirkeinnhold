@@ -1,64 +1,167 @@
-import { Resend } from 'resend';
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kirkeinnhold</title>
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f5f2;
+      color: #0f172a;
+    }
 
-function escapeHtml(value = '') {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, message: 'Method not allowed' });
-  }
+    header {
+      background: white;
+      border-bottom: 1px solid #eee;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn {
+      background: #c05600;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+    }
+
+    .error {
+      background: #ffe5e5;
+      color: #b00020;
+      padding: 12px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .success {
+      background: #e6ffed;
+      color: #067d3f;
+      padding: 12px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    @media (max-width: 800px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="container">
+    <strong>Kirkeinnhold</strong>
+    <button class="btn">Få gratis eksempel</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="grid">
+
+    <div>
+      <h1>Få et gratis eksempel</h1>
+      <p>Send inn info – vi lager ferdig innlegg.</p>
+    </div>
+
+    <div class="card">
+      <form id="contactForm">
+
+        <input name="churchName" placeholder="Kirke / menighet" required />
+        <input name="contactName" placeholder="Navn" required />
+        <input name="email" type="email" placeholder="E-post" required />
+        <input name="title" placeholder="Tittel" required />
+
+        <textarea name="details" placeholder="Detaljer"></textarea>
+
+        <button class="btn" type="submit">Send</button>
+
+        <div class="success" id="successMsg">
+          ✅ Sendt! Vi kontakter deg snart.
+        </div>
+
+        <div class="error" id="errorMsg">
+          ❌ Noe gikk galt. Prøv igjen.
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const form = document.getElementById('contactForm');
+const successMsg = document.getElementById('successMsg');
+const errorMsg = document.getElementById('errorMsg');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  successMsg.style.display = 'none';
+  errorMsg.style.display = 'none';
+
+  const formData = Object.fromEntries(new FormData(form));
 
   try {
-    const data = req.body || {};
-
-    if (!data.email || !data.churchName || !data.contactName || !data.title) {
-      return res.status(400).json({ success: false, message: 'Missing required fields' });
-    }
-
-    const result = await resend.emails.send({
-      from: 'Kirkeinnhold <delivered@resend.dev>',
-      to: 'helliobest@gmail.com',
-      subject: `Ny forespørsel fra ${escapeHtml(data.churchName)}`,
-      html: `
-        <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#0f172a">
-          <h2>Ny innsending fra Kirkeinnhold</h2>
-
-          <p><strong>Kirke / menighet:</strong> ${escapeHtml(data.churchName)}</p>
-          <p><strong>Navn:</strong> ${escapeHtml(data.contactName)}</p>
-          <p><strong>E-post:</strong> ${escapeHtml(data.email)}</p>
-          <p><strong>Valgt plan:</strong> ${escapeHtml(data.selectedPlan || 'Ikke valgt')}</p>
-
-          <hr/>
-
-          <p><strong>Tittel:</strong> ${escapeHtml(data.title)}</p>
-          <p><strong>Dato og tidspunkt:</strong> ${escapeHtml(data.dateTime || 'Ikke oppgitt')}</p>
-          <p><strong>Sted:</strong> ${escapeHtml(data.place || 'Ikke oppgitt')}</p>
-
-          <hr/>
-
-          <p><strong>Format:</strong> ${escapeHtml(data.platforms || 'Ikke oppgitt')}</p>
-          <p><strong>Tone:</strong> ${escapeHtml(data.tone || 'Ikke oppgitt')}</p>
-          <p><strong>Detaljer:</strong><br/>${escapeHtml(data.details || 'Ikke oppgitt').replaceAll('\\n', '<br/>')}</p>
-        </div>
-      `,
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
     });
 
-    if (result.error) {
-      console.error('Resend error:', result.error);
-      return res.status(500).json({ success: false, message: 'Email failed' });
+    if (res.ok) {
+      successMsg.style.display = 'block';
+      form.reset();
+    } else {
+      errorMsg.style.display = 'block';
     }
 
-    return res.status(200).json({ success: true, message: 'Success' });
-  } catch (error) {
-    console.error('Email error:', error);
-    return res.status(500).json({ success: false, message: 'Error sending email' });
+  } catch (err) {
+    errorMsg.style.display = 'block';
   }
-}
+});
+</script>
+
+</body>
+</html>
