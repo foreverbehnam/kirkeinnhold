@@ -1,125 +1,64 @@
-<script>
-let step = 1;
-let selectedPlan = localStorage.getItem('kirkeinnhold-plan') || '';
+import { Resend } from 'resend';
 
-const menuButton = document.getElementById('menuButton');
-const mobileMenu = document.getElementById('mobileMenu');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-menuButton.addEventListener('click', () => {
-  mobileMenu.classList.toggle('show');
-  menuButton.querySelectorAll('.bar').forEach(b => b.classList.toggle('open'));
-});
+function escapeHtml(value = '') {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
 
-mobileMenu.querySelectorAll('a').forEach(a =>
-  a.addEventListener('click', () => {
-    mobileMenu.classList.remove('show');
-    menuButton.querySelectorAll('.bar').forEach(b => b.classList.remove('open'));
-  })
-);
-
-document.getElementById('year').textContent = new Date().getFullYear();
-
-function showSelected() {
-  const el = document.getElementById('selectedPlan');
-  if (selectedPlan) {
-    el.style.display = 'block';
-    el.innerHTML = '<b>Valgt plan:</b> ' + selectedPlan;
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
-}
-showSelected();
-
-document.querySelectorAll('[data-plan]').forEach(btn =>
-  btn.addEventListener('click', () => {
-    selectedPlan = btn.dataset.plan;
-    localStorage.setItem('kirkeinnhold-plan', selectedPlan);
-    showSelected();
-    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
-  })
-);
-
-function updateStep() {
-  document.querySelectorAll('.formStep').forEach(s => {
-    s.style.display = Number(s.dataset.step) === step ? 'block' : 'none';
-  });
-
-  document.getElementById('stepText').textContent = 'Steg ' + step + ' av 3';
-  document.getElementById('stepName').textContent =
-    step === 1 ? 'Kontakt' : step === 2 ? 'Arrangement' : 'Ønsker';
-
-  document.getElementById('progressBar').style.width = (step / 3 * 100) + '%';
-
-  document.getElementById('backBtn').style.display = step > 1 ? 'block' : 'none';
-  document.getElementById('nextBtn').style.display = step < 3 ? 'block' : 'none';
-  document.getElementById('submitBtn').style.display = step === 3 ? 'block' : 'none';
-}
-
-function validStep() {
-  const panel = document.querySelector('.formStep[data-step="' + step + '"]');
-  const fields = [...panel.querySelectorAll('input[required]')];
-  return fields.every(f => f.checkValidity() && f.value.trim());
-}
-
-document.getElementById('nextBtn').addEventListener('click', () => {
-  if (!validStep()) {
-    message('Fyll ut alle feltene før du går videre.', 'error');
-    return;
-  }
-  message('', null);
-  step++;
-  updateStep();
-});
-
-document.getElementById('backBtn').addEventListener('click', () => {
-  message('', null);
-  step--;
-  updateStep();
-});
-
-function message(text, type) {
-  const el = document.getElementById('formMessage');
-  if (!text) {
-    el.innerHTML = '';
-    return;
-  }
-  el.className = 'message ' + type;
-  el.textContent = text;
-}
-
-document.getElementById('leadForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.textContent = 'Sender...';
-
-  const data = Object.fromEntries(new FormData(e.currentTarget).entries());
-  data.selectedPlan = selectedPlan;
 
   try {
-    const res = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
+    const data = req.body || {};
 
-    const result = await res.json();
-
-    if (result.success) {
-      message('Takk! Vi har mottatt informasjonen deres. Du får svar innen 24 timer.', 'success');
-      e.currentTarget.reset();
-      step = 1;
-      updateStep();
-    } else {
-      throw new Error();
+    if (!data.email || !data.churchName || !data.contactName || !data.title) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
 
-  } catch (err) {
-    message('Noe gikk galt. Prøv igjen.', 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Få gratis eksempel nå →';
-  }
-});
+    const result = await resend.emails.send({
+      from: 'Kirkeinnhold <delivered@resend.dev>',
+      to: 'helliobest@gmail.com',
+      subject: `Ny forespørsel fra ${escapeHtml(data.churchName)}`,
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#0f172a">
+          <h2>Ny innsending fra Kirkeinnhold</h2>
 
-updateStep();
-</script>
+          <p><strong>Kirke / menighet:</strong> ${escapeHtml(data.churchName)}</p>
+          <p><strong>Navn:</strong> ${escapeHtml(data.contactName)}</p>
+          <p><strong>E-post:</strong> ${escapeHtml(data.email)}</p>
+          <p><strong>Valgt plan:</strong> ${escapeHtml(data.selectedPlan || 'Ikke valgt')}</p>
+
+          <hr/>
+
+          <p><strong>Tittel:</strong> ${escapeHtml(data.title)}</p>
+          <p><strong>Dato og tidspunkt:</strong> ${escapeHtml(data.dateTime || 'Ikke oppgitt')}</p>
+          <p><strong>Sted:</strong> ${escapeHtml(data.place || 'Ikke oppgitt')}</p>
+
+          <hr/>
+
+          <p><strong>Format:</strong> ${escapeHtml(data.platforms || 'Ikke oppgitt')}</p>
+          <p><strong>Tone:</strong> ${escapeHtml(data.tone || 'Ikke oppgitt')}</p>
+          <p><strong>Detaljer:</strong><br/>${escapeHtml(data.details || 'Ikke oppgitt').replaceAll('\\n', '<br/>')}</p>
+        </div>
+      `,
+    });
+
+    if (result.error) {
+      console.error('Resend error:', result.error);
+      return res.status(500).json({ success: false, message: 'Email failed' });
+    }
+
+    return res.status(200).json({ success: true, message: 'Success' });
+  } catch (error) {
+    console.error('Email error:', error);
+    return res.status(500).json({ success: false, message: 'Error sending email' });
+  }
+}
