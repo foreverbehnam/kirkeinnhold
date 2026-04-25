@@ -12,13 +12,15 @@ function escapeHtml(value = '') {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false });
+  }
 
   try {
     const data = req.body || {};
 
     if (!data.email || !data.churchName || !data.contactName || !data.title) {
-      return res.status(400).json({ message: 'Missing required fields' });
+      return res.status(400).json({ success: false });
     }
 
     const result = await resend.emails.send({
@@ -31,27 +33,19 @@ export default async function handler(req, res) {
           <p><strong>Kirke / menighet:</strong> ${escapeHtml(data.churchName)}</p>
           <p><strong>Navn:</strong> ${escapeHtml(data.contactName)}</p>
           <p><strong>E-post:</strong> ${escapeHtml(data.email)}</p>
-          <p><strong>Valgt plan:</strong> ${escapeHtml(data.selectedPlan || 'Ikke valgt')}</p>
-          <hr/>
-          <p><strong>Tittel:</strong> ${escapeHtml(data.title)}</p>
-          <p><strong>Dato og tidspunkt:</strong> ${escapeHtml(data.dateTime)}</p>
-          <p><strong>Sted:</strong> ${escapeHtml(data.place)}</p>
-          <hr/>
-          <p><strong>Format:</strong> ${escapeHtml(data.platforms)}</p>
-          <p><strong>Tone:</strong> ${escapeHtml(data.tone)}</p>
-          <p><strong>Detaljer:</strong><br/>${escapeHtml(data.details || 'Ikke oppgitt').replaceAll('\\n', '<br/>')}</p>
         </div>
       `,
     });
 
     if (result.error) {
       console.error('Resend error:', result.error);
-      return res.status(500).json({ message: 'Email failed' });
+      return res.status(500).json({ success: false });
     }
 
-    return res.status(200).json({ message: 'Success' });
+    return res.status(200).json({ success: true });
+
   } catch (error) {
     console.error('Email error:', error);
-    return res.status(500).json({ message: 'Error sending email' });
+    return res.status(500).json({ success: false });
   }
 }
