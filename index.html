@@ -1,167 +1,386 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="no">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kirkeinnhold</title>
+  <meta name="description" content="Ferdige innlegg for kirker. Send detaljer, få publiseringsklart innhold innen 24 timer." />
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f7f5f2;
-      color: #0f172a;
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:#fffaf1;
+      color:#071022;
+      line-height:1.5;
+    }
+    a{text-decoration:none;color:inherit}
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer;border:0}
+
+    .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+    .header{
+      position:sticky;top:0;z-index:50;
+      background:rgba(255,253,248,.96);
+      border-bottom:1px solid #f6dca8;
+      backdrop-filter:blur(16px);
+    }
+    .nav{height:78px;display:flex;align-items:center;justify-content:space-between;gap:28px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:900}
+    .logo{
+      width:44px;height:44px;border-radius:16px;
+      display:grid;place-items:center;
+      background:#fff7db;border:1px solid #f5c66d;color:#b45309;
+      font-weight:900;
+    }
+    .brand small{display:block;color:#64748b;font-weight:500}
+    .links{display:flex;gap:28px;color:#475569;font-weight:600}
+    .cta,.btn{
+      background:#b45309;color:white;border-radius:16px;
+      padding:14px 22px;font-weight:900;
+      box-shadow:0 14px 34px rgba(180,83,9,.22);
+    }
+    .btn.secondary{background:white;color:#172033;border:1px solid #ead9bd;box-shadow:none}
+
+    section{padding:86px 0}
+    .hero{
+      background:
+        radial-gradient(circle at 15% 5%,rgba(180,83,9,.12),transparent 32%),
+        linear-gradient(180deg,#fffaf1,#fff);
+    }
+    .heroGrid{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center}
+    .eyebrow{color:#b45309;font-size:13px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;margin-bottom:18px}
+    h1{font-size:64px;line-height:1.02;letter-spacing:-.06em;margin-bottom:24px}
+    h2{font-size:48px;line-height:1.05;letter-spacing:-.05em;margin-bottom:18px}
+    p{font-size:19px;color:#526179}
+    .heroActions{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap}
+    .trust{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+    .trust span{background:white;border:1px solid #f1d9a9;border-radius:999px;padding:8px 12px;color:#64748b;font-size:14px}
+
+    .preview{
+      background:white;border:1px solid #f1d9a9;border-radius:32px;
+      padding:28px;box-shadow:0 24px 70px rgba(15,23,42,.08);
+    }
+    .previewBox{background:#fff7db;border-radius:24px;padding:22px;margin-top:14px}
+    .darkBox{background:#060a18;color:white;border-radius:24px;padding:24px;margin-top:14px}
+    .darkBox p{color:#cbd5e1}
+
+    .sectionHead{display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:end;margin-bottom:36px}
+    .sectionHead p{max-width:600px}
+
+    .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+    .card{
+      background:white;border:1px solid #f1d9a9;border-radius:28px;
+      padding:28px;box-shadow:0 14px 44px rgba(15,23,42,.05);
+    }
+    .card b{display:inline-grid;place-items:center;width:42px;height:42px;background:#fff7db;color:#b45309;border-radius:14px;margin-bottom:18px}
+
+    .soft{background:linear-gradient(180deg,#fff,#fff7ed)}
+    .benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .benefit{
+      background:white;border:1px solid #f1d9a9;border-radius:22px;padding:22px;
+      font-weight:800;color:#243044;
     }
 
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 40px 20px;
+    .pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+    .plan{
+      background:white;border:1px solid #f1d9a9;border-radius:30px;
+      padding:30px;box-shadow:0 18px 54px rgba(15,23,42,.06);
     }
+    .plan.featured{background:#060a18;color:white;transform:translateY(-12px)}
+    .plan.featured p,.plan.featured li{color:#d7deea}
+    .price{font-size:34px;font-weight:950;margin:22px 0}
+    ul{list-style:none;display:grid;gap:12px;color:#475569}
+    li:before{content:"✓ ";color:#b45309;font-weight:900}
 
-    header {
-      background: white;
-      border-bottom: 1px solid #eee;
-      position: sticky;
-      top: 0;
-      z-index: 10;
+    .contact{
+      background:linear-gradient(180deg,#fff7ed,#fffaf1);
     }
-
-    header .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .contactGrid{
+      display:grid;grid-template-columns:1fr .95fr;gap:52px;align-items:start;
+      background:white;border:1px solid #f1d9a9;border-radius:34px;padding:42px;
+      box-shadow:0 26px 80px rgba(15,23,42,.08);
     }
-
-    .btn {
-      background: #c05600;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
+    form{background:#fffdf7;border:1px solid #f1d9a9;border-radius:28px;padding:24px}
+    label{display:block;font-weight:800;color:#334155;margin:14px 0 8px}
+    input,textarea,select{
+      width:100%;border:1px solid #efd39d;border-radius:16px;
+      padding:14px 16px;background:white;outline:none;
     }
+    input:focus,textarea:focus,select:focus{border-color:#b45309;box-shadow:0 0 0 4px rgba(180,83,9,.12)}
+    textarea{min-height:110px;resize:vertical}
+    .formGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .submit{width:100%;margin-top:18px;padding:16px;border-radius:18px;background:#b45309;color:white;font-weight:900}
+    .message{display:none;margin-top:14px;padding:14px;border-radius:16px}
+    .success{background:#dcfce7;color:#166534;display:block}
+    .error{background:#fee2e2;color:#991b1b;display:block}
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
-    }
+    footer{padding:34px 0;border-top:1px solid #f1d9a9;background:white;color:#64748b}
 
-    input, textarea, select {
-      width: 100%;
-      padding: 12px;
-      margin-top: 8px;
-      margin-bottom: 16px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-    }
-
-    .card {
-      background: white;
-      padding: 24px;
-      border-radius: 16px;
-    }
-
-    .error {
-      background: #ffe5e5;
-      color: #b00020;
-      padding: 12px;
-      border-radius: 8px;
-      display: none;
-    }
-
-    .success {
-      background: #e6ffed;
-      color: #067d3f;
-      padding: 12px;
-      border-radius: 8px;
-      display: none;
-    }
-
-    @media (max-width: 800px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
+    @media(max-width:900px){
+      .links{display:none}
+      .heroGrid,.sectionHead,.contactGrid{grid-template-columns:1fr}
+      h1{font-size:42px}
+      h2{font-size:34px}
+      .cards3,.benefits,.pricing{grid-template-columns:1fr}
+      .formGrid{grid-template-columns:1fr}
+      .plan.featured{transform:none}
+      section{padding:58px 0}
+      .contactGrid{padding:22px}
     }
   </style>
 </head>
 
 <body>
-
-<header>
-  <div class="container">
-    <strong>Kirkeinnhold</strong>
-    <button class="btn">Få gratis eksempel</button>
-  </div>
-</header>
-
-<div class="container">
-  <div class="grid">
-
-    <div>
-      <h1>Få et gratis eksempel</h1>
-      <p>Send inn info – vi lager ferdig innlegg.</p>
+  <header class="header">
+    <div class="wrap nav">
+      <a class="brand" href="#">
+        <span class="logo">K</span>
+        <span>Kirkeinnhold<small>Ferdige innlegg for sosiale medier</small></span>
+      </a>
+      <nav class="links">
+        <a href="#how">Slik fungerer det</a>
+        <a href="#benefits">Hva dere får</a>
+        <a href="#pricing">Priser</a>
+        <a href="#contact">Kontakt</a>
+      </nav>
+      <a class="cta" href="#contact">Få gratis eksempel</a>
     </div>
+  </header>
 
-    <div class="card">
-      <form id="contactForm">
-
-        <input name="churchName" placeholder="Kirke / menighet" required />
-        <input name="contactName" placeholder="Navn" required />
-        <input name="email" type="email" placeholder="E-post" required />
-        <input name="title" placeholder="Tittel" required />
-
-        <textarea name="details" placeholder="Detaljer"></textarea>
-
-        <button class="btn" type="submit">Send</button>
-
-        <div class="success" id="successMsg">
-          ✅ Sendt! Vi kontakter deg snart.
+  <main>
+    <section class="hero">
+      <div class="wrap heroGrid">
+        <div>
+          <div class="eyebrow">Sosiale medier for kirker</div>
+          <h1>Du sender detaljene — vi skriver innleggene.</h1>
+          <p>En enkel tjeneste for kirker som vil kommunisere tydelig på nett. Send informasjon om gudstjenester, arrangementer og annonseringer, og få ferdige innlegg for Facebook og Instagram innen 24 timer.</p>
+          <div class="heroActions">
+            <a class="btn" href="#contact">Få gratis eksempel →</a>
+            <a class="btn secondary" href="#pricing">Se priser</a>
+          </div>
+          <div class="trust">
+            <span>✓ Gratis første eksempel</span>
+            <span>✓ Ingen binding</span>
+            <span>✓ Svar innen 24 timer</span>
+          </div>
         </div>
 
-        <div class="error" id="errorMsg">
-          ❌ Noe gikk galt. Prøv igjen.
+        <div class="preview">
+          <div class="eyebrow">Før → Etter</div>
+          <div class="previewBox">
+            <strong>Det dere sender</strong>
+            <p>Gudstjeneste søndag kl. 11:00. Tema: Håp i krevende tider.</p>
+          </div>
+          <div class="darkBox">
+            <strong>Det dere får</strong>
+            <p>Velkommen til gudstjeneste denne søndagen. Bli med på en varm samling med lovsang, bønn og en oppmuntrende tale om håp i krevende tider.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how">
+      <div class="wrap">
+        <div class="sectionHead">
+          <div>
+            <div class="eyebrow">Slik fungerer det</div>
+            <h2>Fra enkel info til ferdig innhold.</h2>
+          </div>
+          <p>Ingen komplisert plattform. Bare en tydelig og praktisk arbeidsflyt som sparer tid hver uke.</p>
         </div>
 
-      </form>
-    </div>
+        <div class="cards3">
+          <div class="card"><b>01</b><h3>Send detaljene</h3><p>Fyll ut tittel, dato, sted og korte stikkord.</p></div>
+          <div class="card"><b>02</b><h3>Vi skriver</h3><p>Vi gjør informasjonen om til varme og tydelige innlegg.</p></div>
+          <div class="card"><b>03</b><h3>Kopier og publiser</h3><p>Dere får tekst klar til Facebook, Instagram og kort versjon.</p></div>
+        </div>
+      </div>
+    </section>
 
-  </div>
-</div>
+    <section id="benefits" class="soft">
+      <div class="wrap">
+        <div class="sectionHead">
+          <div>
+            <div class="eyebrow">Hva dere får</div>
+            <h2>Klar kommunikasjon uten ekstra arbeid.</h2>
+          </div>
+          <p>Alt er laget for å være lett å bruke, lett å forstå og lett å publisere.</p>
+        </div>
 
-<script>
-const form = document.getElementById('contactForm');
-const successMsg = document.getElementById('successMsg');
-const errorMsg = document.getElementById('errorMsg');
+        <div class="benefits">
+          <div class="benefit">✓ Spar tid hver uke</div>
+          <div class="benefit">✓ Jevnere kommunikasjon</div>
+          <div class="benefit">✓ Mindre stress rundt formuleringer</div>
+          <div class="benefit">✓ Tydelige og varme innlegg</div>
+          <div class="benefit">✓ Norsk først, engelsk ved behov</div>
+          <div class="benefit">✓ Levering innen 24 timer</div>
+        </div>
+      </div>
+    </section>
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+    <section id="pricing">
+      <div class="wrap">
+        <div class="sectionHead">
+          <div>
+            <div class="eyebrow">Priser</div>
+            <h2>Fast månedlig pris.</h2>
+          </div>
+          <p>Velg pakken som passer aktivitetsnivået i menigheten.</p>
+        </div>
 
-  successMsg.style.display = 'none';
-  errorMsg.style.display = 'none';
+        <div class="pricing">
+          <div class="plan">
+            <h3>Start</h3>
+            <p>For små kirker med noen få arrangementer.</p>
+            <div class="price">499 kr / mnd</div>
+            <ul>
+              <li>Opptil 4 innlegg per måned</li>
+              <li>Levering innen 24 timer</li>
+              <li>Facebook + Instagram</li>
+            </ul>
+          </div>
 
-  const formData = Object.fromEntries(new FormData(form));
+          <div class="plan featured">
+            <h3>Standard</h3>
+            <p>For kirker som ønsker jevn kommunikasjon hver uke.</p>
+            <div class="price">990 kr / mnd</div>
+            <ul>
+              <li>Opptil 12 innlegg per måned</li>
+              <li>Prioritert levering</li>
+              <li>Tilpasset tone</li>
+            </ul>
+          </div>
 
-  try {
-    const res = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
+          <div class="plan">
+            <h3>Pluss</h3>
+            <p>For aktive kirker med mange samlinger.</p>
+            <div class="price">1790 kr / mnd</div>
+            <ul>
+              <li>Flere forespørsler</li>
+              <li>Ekstra variasjoner</li>
+              <li>Prioritert støtte</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="contact">
+      <div class="wrap">
+        <div class="contactGrid">
+          <div>
+            <div class="eyebrow">Kontakt</div>
+            <h2>Få et gratis eksempel på deres neste innlegg.</h2>
+            <p>Send inn ett arrangement, så viser vi hvordan et ferdig innlegg kan se ut.</p>
+            <p><strong>Ingen binding.</strong><br><strong>Ingen møte.</strong><br><strong>Ingen komplisert oppsett.</strong></p>
+          </div>
+
+          <form id="contactForm">
+            <div class="formGrid">
+              <div>
+                <label>Kirke / menighet</label>
+                <input name="churchName" required placeholder="Eks. Betel kirke" />
+              </div>
+              <div>
+                <label>Navn</label>
+                <input name="contactName" required placeholder="Ditt navn" />
+              </div>
+            </div>
+
+            <label>E-post</label>
+            <input name="email" type="email" required placeholder="navn@kirke.no" />
+
+            <label>Tittel på arrangement</label>
+            <input name="title" required placeholder="Søndagsgudstjeneste" />
+
+            <div class="formGrid">
+              <div>
+                <label>Dato og tidspunkt</label>
+                <input name="dateTime" placeholder="Søndag kl. 11:00" />
+              </div>
+              <div>
+                <label>Sted</label>
+                <input name="place" placeholder="Kirken deres" />
+              </div>
+            </div>
+
+            <div class="formGrid">
+              <div>
+                <label>Format</label>
+                <select name="platforms">
+                  <option>Begge</option>
+                  <option>Facebook</option>
+                  <option>Instagram</option>
+                </select>
+              </div>
+              <div>
+                <label>Tone</label>
+                <select name="tone">
+                  <option>Varm og inkluderende</option>
+                  <option>Informativ og tydelig</option>
+                  <option>Kort og enkel</option>
+                </select>
+              </div>
+            </div>
+
+            <label>Detaljer</label>
+            <textarea name="details" placeholder="Lovsang, tale, søndagsskole, praktisk info..."></textarea>
+
+            <button class="submit" type="submit">Send gratis eksempel →</button>
+
+            <div id="successMsg" class="message">✅ Sendt! Vi kontakter deg snart.</div>
+            <div id="errorMsg" class="message">❌ Noe gikk galt. Prøv igjen.</div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">© 2026 Kirkeinnhold. Gratis prøve først. Ingen binding.</div>
+  </footer>
+
+  <script>
+    const form = document.getElementById('contactForm');
+    const successMsg = document.getElementById('successMsg');
+    const errorMsg = document.getElementById('errorMsg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      successMsg.className = 'message';
+      errorMsg.className = 'message';
+
+      const btn = form.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Sender...';
+
+      const formData = Object.fromEntries(new FormData(form));
+
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify(formData)
+        });
+
+        const result = await res.json().catch(() => ({}));
+
+        if (res.ok && (result.success === true || result.message === 'Success')) {
+          successMsg.className = 'message success';
+          form.reset();
+        } else {
+          errorMsg.className = 'message error';
+        }
+      } catch (err) {
+        errorMsg.className = 'message error';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send gratis eksempel →';
+      }
     });
-
-    if (res.ok) {
-      successMsg.style.display = 'block';
-      form.reset();
-    } else {
-      errorMsg.style.display = 'block';
-    }
-
-  } catch (err) {
-    errorMsg.style.display = 'block';
-  }
-});
-</script>
-
+  </script>
 </body>
 </html>
