@@ -1,14 +1,12 @@
 # Kirkeinnhold
 
-Ready-to-deploy Vite + React landing page.
+Full React/Vite website with Vercel API email handler.
 
-## Run locally
+## Vercel environment variables
 
-```bash
-npm install
-npm run dev
-```
+Add these in Vercel:
 
-## Deploy to Vercel
+RESEND_API_KEY=your_resend_api_key
+LEAD_EMAIL=your_email@example.com
 
-Upload these files to GitHub. Vercel will deploy automatically.
+Then redeploy.
