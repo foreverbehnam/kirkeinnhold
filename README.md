@@ -1,12 +1,10 @@
 # Kirkeinnhold
 
-Full React/Vite website with Vercel API email handler.
+Static landing page + Vercel API contact form.
 
-## Vercel environment variables
-
-Add these in Vercel:
+Required Vercel Environment Variables:
 
 RESEND_API_KEY=your_resend_api_key
 LEAD_EMAIL=your_email@example.com
 
-Then redeploy.
+After adding variables, redeploy.

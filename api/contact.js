@@ -1,4 +1,3 @@
-
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -13,13 +12,10 @@ function escapeHtml(value = '') {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' });
 
   try {
     const data = req.body || {};
-
     if (!data.email || !data.churchName || !data.contactName || !data.title) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
