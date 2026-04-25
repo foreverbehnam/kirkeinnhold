@@ -16,13 +16,14 @@ export default async function handler(req, res) {
 
   try {
     const data = req.body || {};
+
     if (!data.email || !data.churchName || !data.contactName || !data.title) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    await resend.emails.send({
-      from: 'Kirkeinnhold <onboarding@resend.dev>',
-      to: process.env.LEAD_EMAIL,
+    const result = await resend.emails.send({
+      from: 'Kirkeinnhold <delivered@resend.dev>',
+      to: 'helliobest@gmail.com',
       subject: `Ny forespørsel fra ${escapeHtml(data.churchName)}`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#0f172a">
@@ -42,6 +43,11 @@ export default async function handler(req, res) {
         </div>
       `,
     });
+
+    if (result.error) {
+      console.error('Resend error:', result.error);
+      return res.status(500).json({ message: 'Email failed' });
+    }
 
     return res.status(200).json({ message: 'Success' });
   } catch (error) {
